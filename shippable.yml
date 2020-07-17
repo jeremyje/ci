@@ -24,7 +24,5 @@ build:
     - make push
 integrations:
   hub:
-    - integrationName: dockerhub-codecahedronrobot
+    - integrationName: docker-jeremyje
       type: dockerRegistryLogin
-    - integrationName: gcloud-gcp-codecahedron-continuous-integration
-      type: gcloudKey

@@ -63,16 +63,16 @@ jobs:
         with:
           push: true
           platforms: linux/amd64,linux/arm64
-          file: ./ci/Dockerfile
+          file: ./ci-core/Dockerfile
           tags: |
-            ghcr.io/${{ github.actor }}/ci:canary
-            ghcr.io/${{ github.actor }}/ci:${{ github.sha }}
-            ghcr.io/${{ github.actor }}/ci:${{ github.run_id }}
-            ghcr.io/${{ github.actor }}/ci:${{ steps.prep.outputs.build_date }}
-            docker.io/${{ github.actor }}/ci:canary
-            docker.io/${{ github.actor }}/ci:${{ github.sha }}
-            docker.io/${{ github.actor }}/ci:${{ github.run_id }}
-            docker.io/${{ github.actor }}/ci:${{ steps.prep.outputs.build_date }}
+            ghcr.io/${{ github.actor }}/ci-core:canary
+            ghcr.io/${{ github.actor }}/ci-core:${{ github.sha }}
+            ghcr.io/${{ github.actor }}/ci-core:${{ github.run_id }}
+            ghcr.io/${{ github.actor }}/ci-core:${{ steps.prep.outputs.build_date }}
+            docker.io/${{ github.actor }}/ci-core:canary
+            docker.io/${{ github.actor }}/ci-core:${{ github.sha }}
+            docker.io/${{ github.actor }}/ci-core:${{ github.run_id }}
+            docker.io/${{ github.actor }}/ci-core:${{ steps.prep.outputs.build_date }}
           labels: |
             org.opencontainers.image.title=Continuous Integration
             org.opencontainers.image.description=Continuous Integration Image

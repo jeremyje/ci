@@ -25,8 +25,8 @@ DOCKER_EXTRA_FLAGS = --builder $(BUILDX_BUILDER) --platform $(TARGET_PLATFORMS) 
 DOCKER_PUSH =
 
 all:
-	BUILDKIT_PROGRESS=plain $(DOCKER) buildx build  $(DOCKER_EXTRA_FLAGS)  -f Dockerfile -t $(REGISTRY)/ci:$(TAG) . $(DOCKER_PUSH)
-# --no-cache
+	BUILDKIT_PROGRESS=plain $(DOCKER) buildx build  $(DOCKER_EXTRA_FLAGS)  -f ./ci-core/Dockerfile -t $(REGISTRY)/ci-core:$(TAG) . $(DOCKER_PUSH)
+
 ensure-builder:
 	-$(DOCKER) buildx create --name $(BUILDX_BUILDER)
 

@@ -17,18 +17,17 @@ name: Build CI Image
 on:
   push:
     tags: ["v*"]
-    branches: ["main", "master"]
+    branches: ["main"]
   pull_request:
-    branches: ["main", "master"]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
   ci:
     runs-on: ubuntu-latest
     permissions:
-      packages: write
+      packages: read
       contents: "write"
-      id-token: "write"
     timeout-minutes: 45
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
@@ -38,7 +37,15 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          echo ::set-output name=build_date::$(date -u +'%Y%m%d')
+          echo "build_date=$(date -u +'%Y%m%d')" >> $GITHUB_OUTPUT
+        # echo ::set-output name=build_date::$(date -u +'%Y%m%d')
+
+      # https://github.com/docker/metadata-action#about
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: jeremyje/ci-core
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -63,17 +70,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push to ghcr.io
+      # https://docs.github.com/en/packages/managing-github-packages-using-github-actions-workflows/publishing-and-installing-a-package-with-github-actions#publishing-a-package-using-an-action
+      - name: Build and Push to Docker Hub
         uses: docker/build-push-action@v4
         with:
           push: true
           platforms: linux/amd64,linux/arm64
           file: ./ci-core/Dockerfile
+          context: .
           tags: |
-            ghcr.io/${{ github.actor }}/ci-core:canary
-            ghcr.io/${{ github.actor }}/ci-core:${{ github.sha }}
-            ghcr.io/${{ github.actor }}/ci-core:${{ github.run_id }}
-            ghcr.io/${{ github.actor }}/ci-core:${{ steps.prep.outputs.build_date }}
             docker.io/${{ github.actor }}/ci-core:canary
             docker.io/${{ github.actor }}/ci-core:${{ github.sha }}
             docker.io/${{ github.actor }}/ci-core:${{ github.run_id }}
@@ -88,3 +93,14 @@ jobs:
             org.opencontainers.image.source=${{ github.event.repository.clone_url }}
             org.opencontainers.image.created=${{ steps.prep.outputs.build_timestamp }}
             org.opencontainers.image.revision=${{ github.sha }}
+
+
+      - name: Build and Push to ghcr.io
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          platforms: linux/amd64,linux/arm64
+          file: ./ci-core/Dockerfile
+          context: .
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

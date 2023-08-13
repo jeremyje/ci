@@ -30,4 +30,9 @@ all:
 ensure-builder:
 	-$(DOCKER) buildx create --name $(BUILDX_BUILDER)
 
-.PHONY: all ensure-builder
+submit:
+	git add -A
+	git commit -m"CI $(BUILD_VERSION) on $(BUILD_DATE)"
+	git push
+
+.PHONY: all ensure-builder submit

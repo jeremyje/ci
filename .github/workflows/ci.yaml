@@ -35,6 +35,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Prepare
+        id: prep
+        run: |
+          echo ::set-output name=build_date::$(date -u +'%Y%m%d')
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 

@@ -20,3 +20,5 @@ jobs:
       - name: Container Fix
         run: git config --system --add safe.directory /__w/
 ```
+
+[Docker Hub](https://hub.docker.com/repository/docker/jeremyje/ci-core/)

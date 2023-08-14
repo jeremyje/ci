@@ -23,5 +23,5 @@ jobs:
 
 ## Links
 
-* [Github](https://github.com/jeremyje/ci)
+* [GitHub](https://github.com/jeremyje/ci)
 * [Docker Hub](https://hub.docker.com/repository/docker/jeremyje/ci-core/)

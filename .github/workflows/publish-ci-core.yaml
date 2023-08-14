@@ -64,7 +64,7 @@ jobs:
 
       # https://github.com/docker/metadata-action#about
       - name: Docker Metadata (ghcr.io)
-        id: meta-ghcr-io
+        id: empty-ci-ghcr-io
         uses: docker/metadata-action@v4
         with:
           images: ghcr.io/jeremyje/empty-ci
@@ -91,8 +91,8 @@ jobs:
           platforms: linux/amd64
           file: ./empty-ci/Dockerfile
           context: .
-          tags: ${{ steps.meta-ghcr-io.outputs.tags }}
-          labels: ${{ steps.meta-ghcr-io.outputs.labels }}
+          tags: ${{ steps.empty-ci-ghcr-io.outputs.tags }}
+          labels: ${{ steps.empty-ci-ghcr-io.outputs.labels }}
 
 
 

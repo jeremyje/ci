@@ -10,8 +10,8 @@ jobs:
       image: docker.io/jeremyje/ci-core:canary
     permissions:
       packages: write
-      contents: "write"
-      id-token: "write"
+      contents: write
+      id-token: write
     timeout-minutes: 45
     steps:
       - name: Checkout Code

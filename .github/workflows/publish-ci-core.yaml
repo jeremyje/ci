@@ -15,6 +15,9 @@
 name: Build CI Image
 
 on:
+  schedule:
+    # https://crontab.guru/
+    - cron: "53 5 * * SUN"
   push:
     tags: ["v*"]
     branches: ["main"]

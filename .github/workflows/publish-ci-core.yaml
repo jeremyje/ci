@@ -28,7 +28,7 @@ jobs:
     permissions:
       packages: read
       contents: "write"
-    timeout-minutes: 45
+    timeout-minutes: 20
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout Code
@@ -39,13 +39,6 @@ jobs:
         run: |
           echo "build_date=$(date -u +'%Y%m%d')" >> $GITHUB_OUTPUT
         # echo ::set-output name=build_date::$(date -u +'%Y%m%d')
-
-      # https://github.com/docker/metadata-action#about
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: jeremyje/ci-core
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -74,8 +67,8 @@ jobs:
       - name: Build and Push to Docker Hub
         uses: docker/build-push-action@v4
         with:
-          push: true
-          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v6,linux/arm/v7
           file: ./ci-core/Dockerfile
           context: .
           tags: |
@@ -94,13 +87,34 @@ jobs:
             org.opencontainers.image.created=${{ steps.prep.outputs.build_timestamp }}
             org.opencontainers.image.revision=${{ github.sha }}
 
+      # https://github.com/docker/metadata-action#about
+      - name: Docker Metadata (ghcr.io)
+        id: meta-ghcr-io
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/jeremyje/ci-core
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+          labels: |
+            org.opencontainers.image.title=Continuous Integration
+            org.opencontainers.image.description=Continuous Integration Image
+            org.opencontainers.image.vendor=${{ github.actor }}
+            org.opencontainers.image.authors=${{ github.actor }}
+            org.opencontainers.image.version=${{ github.run_id }}
+            org.opencontainers.image.url=${{ github.event.repository.clone_url }}
+            org.opencontainers.image.source=${{ github.event.repository.clone_url }}
+            org.opencontainers.image.created=${{ steps.prep.outputs.build_timestamp }}
+            org.opencontainers.image.revision=${{ github.sha }}
 
       - name: Build and Push to ghcr.io
         uses: docker/build-push-action@v4
         with:
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           file: ./ci-core/Dockerfile
           context: .
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta-ghcr-io.outputs.tags }}
+          labels: ${{ steps.meta-ghcr-io.outputs.labels }}

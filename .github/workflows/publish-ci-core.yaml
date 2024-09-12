@@ -91,7 +91,7 @@ jobs:
       # https://github.com/docker/metadata-action#about
       - name: Docker Metadata (ghcr.io)
         id: docker-metadata-ghcr-io
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ghcr.io/jeremyje/ci-core
           tags: |

@@ -112,7 +112,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # https://github.com/docker/metadata-action#about
-      - name: Docker Metadata (ghcr.io)
+      - name: Docker Metadata (ghcr.io, Debian)
         id: docker-metadata-ghcr-io-debian
         uses: docker/metadata-action@v5
         with:
@@ -133,14 +133,26 @@ jobs:
             org.opencontainers.image.created=${{ steps.prep.outputs.build_timestamp }}
             org.opencontainers.image.revision=${{ github.sha }}
 
-      - name: Docker Metadata (ghcr.io)
+      - name: Build and Push to ghcr.io (Debian)
+        uses: docker/build-push-action@v4
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64,linux/arm64
+          file: ./ci-core/Dockerfile.debian
+          context: .
+          tags: ${{ steps.docker-metadata-ghcr-io-debian.outputs.tags }}
+          labels: ${{ steps.docker-metadata-ghcr-io-debian.outputs.labels }}
+
+      - name: Docker Metadata (ghcr.io, Ubuntu)
         id: docker-metadata-ghcr-io-ubuntu
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/jeremyje/ci-core
           tags: |
-            type=semver,pattern={{version}}-ubuntu
-            type=semver,pattern={{major}}.{{minor}}-ubuntu
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
           labels: |
             org.opencontainers.image.title=Continuous Integration (Ubuntu)
             org.opencontainers.image.description=Continuous Integration Image (Ubuntu)
@@ -151,16 +163,6 @@ jobs:
             org.opencontainers.image.source=${{ github.event.repository.clone_url }}
             org.opencontainers.image.created=${{ steps.prep.outputs.build_timestamp }}
             org.opencontainers.image.revision=${{ github.sha }}
-
-      - name: Build and Push to ghcr.io (Debian)
-        uses: docker/build-push-action@v4
-        with:
-          push: ${{ github.event_name != 'pull_request' }}
-          platforms: linux/amd64,linux/arm64
-          file: ./ci-core/Dockerfile.debian
-          context: .
-          tags: ${{ steps.docker-metadata-ghcr-io-debian.outputs.tags }}
-          labels: ${{ steps.docker-metadata-ghcr-io-debian.outputs.labels }}
 
       - name: Build and Push to ghcr.io (Ubuntu)
         uses: docker/build-push-action@v4

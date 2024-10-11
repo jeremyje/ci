@@ -15,9 +15,8 @@
 FROM debian:latest
 LABEL maintainer="http://www.futonredemption.com <jeremyje@gmail.com>"
 
-RUN apt-get -qq -y update
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
+RUN apt-get -qq -y update \
+  && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install \
     apt-transport-https \
     build-essential \
     ca-certificates \

@@ -31,7 +31,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout Code
@@ -57,12 +57,12 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # https://docs.github.com/en/packages/managing-github-packages-using-github-actions-workflows/publishing-and-installing-a-package-with-github-actions#publishing-a-package-using-an-action
-      - name: Build and Push to Docker Hub
+      - name: Build and Push to Docker Hub (Debian)
         uses: docker/build-push-action@v4
         with:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
-          file: ./ci-core/Dockerfile
+          file: ./ci-core/Dockerfile.debian
           context: .
           tags: |
             docker.io/${{ github.actor }}/ci-core:canary
@@ -70,8 +70,31 @@ jobs:
             docker.io/${{ github.actor }}/ci-core:${{ github.run_id }}
             docker.io/${{ github.actor }}/ci-core:${{ steps.prep.outputs.build_date }}
           labels: |
-            org.opencontainers.image.title=Continuous Integration
-            org.opencontainers.image.description=Continuous Integration Image
+            org.opencontainers.image.title=Continuous Integration (Debian)
+            org.opencontainers.image.description=Continuous Integration Image (Debian)
+            org.opencontainers.image.vendor=${{ github.actor }}
+            org.opencontainers.image.authors=${{ github.actor }}
+            org.opencontainers.image.version=${{ github.run_id }}
+            org.opencontainers.image.url=${{ github.event.repository.clone_url }}
+            org.opencontainers.image.source=${{ github.event.repository.clone_url }}
+            org.opencontainers.image.created=${{ steps.prep.outputs.build_timestamp }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Build and Push to Docker Hub (Ubuntu)
+        uses: docker/build-push-action@v4
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64,linux/arm64
+          file: ./ci-core/Dockerfile.ubuntu
+          context: .
+          tags: |
+            docker.io/${{ github.actor }}/ci-core:canary-ubuntu
+            docker.io/${{ github.actor }}/ci-core:${{ github.sha }}-ubuntu
+            docker.io/${{ github.actor }}/ci-core:${{ github.run_id }}-ubuntu
+            docker.io/${{ github.actor }}/ci-core:${{ steps.prep.outputs.build_date }}-ubuntu
+          labels: |
+            org.opencontainers.image.title=Continuous Integration (Ubuntu)
+            org.opencontainers.image.description=Continuous Integration Image (Ubuntu)
             org.opencontainers.image.vendor=${{ github.actor }}
             org.opencontainers.image.authors=${{ github.actor }}
             org.opencontainers.image.version=${{ github.run_id }}
@@ -90,7 +113,7 @@ jobs:
 
       # https://github.com/docker/metadata-action#about
       - name: Docker Metadata (ghcr.io)
-        id: docker-metadata-ghcr-io
+        id: docker-metadata-ghcr-io-debian
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/jeremyje/ci-core
@@ -100,8 +123,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
           labels: |
-            org.opencontainers.image.title=Continuous Integration
-            org.opencontainers.image.description=Continuous Integration Image
+            org.opencontainers.image.title=Continuous Integration (Debian)
+            org.opencontainers.image.description=Continuous Integration Image (Debian)
             org.opencontainers.image.vendor=${{ github.actor }}
             org.opencontainers.image.authors=${{ github.actor }}
             org.opencontainers.image.version=${{ github.run_id }}
@@ -110,12 +133,41 @@ jobs:
             org.opencontainers.image.created=${{ steps.prep.outputs.build_timestamp }}
             org.opencontainers.image.revision=${{ github.sha }}
 
-      - name: Build and Push to ghcr.io
+      - name: Docker Metadata (ghcr.io)
+        id: docker-metadata-ghcr-io-ubuntu
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/jeremyje/ci-core
+          tags: |
+            type=semver,pattern={{version}}-ubuntu
+            type=semver,pattern={{major}}.{{minor}}-ubuntu
+          labels: |
+            org.opencontainers.image.title=Continuous Integration (Ubuntu)
+            org.opencontainers.image.description=Continuous Integration Image (Ubuntu)
+            org.opencontainers.image.vendor=${{ github.actor }}
+            org.opencontainers.image.authors=${{ github.actor }}
+            org.opencontainers.image.version=${{ github.run_id }}
+            org.opencontainers.image.url=${{ github.event.repository.clone_url }}
+            org.opencontainers.image.source=${{ github.event.repository.clone_url }}
+            org.opencontainers.image.created=${{ steps.prep.outputs.build_timestamp }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Build and Push to ghcr.io (Debian)
         uses: docker/build-push-action@v4
         with:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
-          file: ./ci-core/Dockerfile
+          file: ./ci-core/Dockerfile.debian
           context: .
-          tags: ${{ steps.docker-metadata-ghcr-io.outputs.tags }}
-          labels: ${{ steps.docker-metadata-ghcr-io.outputs.labels }}
+          tags: ${{ steps.docker-metadata-ghcr-io-debian.outputs.tags }}
+          labels: ${{ steps.docker-metadata-ghcr-io-debian.outputs.labels }}
+
+      - name: Build and Push to ghcr.io (Ubuntu)
+        uses: docker/build-push-action@v4
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64,linux/arm64
+          file: ./ci-core/Dockerfile.ubuntu
+          context: .
+          tags: ${{ steps.docker-metadata-ghcr-io-ubuntu.outputs.tags }}
+          labels: ${{ steps.docker-metadata-ghcr-io-ubuntu.outputs.labels }}

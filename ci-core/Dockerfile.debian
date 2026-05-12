@@ -26,7 +26,6 @@ RUN apt-get -qq -y update \
     lsb-release \
     nano \
     pkg-config \
-    software-properties-common \
     sudo \
     unzip \
     zip \

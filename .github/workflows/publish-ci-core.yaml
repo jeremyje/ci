@@ -62,7 +62,7 @@ jobs:
 
       # https://docs.github.com/en/packages/managing-github-packages-using-github-actions-workflows/publishing-and-installing-a-package-with-github-actions#publishing-a-package-using-an-action
       - name: Build and Push to Docker Hub (Debian)
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
@@ -138,7 +138,7 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
 
       - name: Build and Push to ghcr.io (Debian)
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
@@ -169,7 +169,7 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
 
       - name: Build and Push to ghcr.io (Ubuntu)
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
